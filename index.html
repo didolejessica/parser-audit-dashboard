@@ -160,7 +160,7 @@
   <div class="kpi-grid">
     <div class="kpi-card navy"><div class="kpi-label">Total Investors</div><div class="kpi-value">226</div><div class="kpi-sub">in scope for audit</div></div>
     <div class="kpi-card green"><div class="kpi-label">Audits Complete</div><div class="kpi-value">38</div><div class="kpi-sub">fully reviewed</div></div>
-    <div class="kpi-card red"><div class="kpi-label">Issues Found</div><div class="kpi-value">0</div><div class="kpi-sub">issues pending resolution</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Open Issues</div><div class="kpi-value">0</div><div class="kpi-sub">pending resolution</div></div>
     <div class="kpi-card orange"><div class="kpi-label">In Progress</div><div class="kpi-value">0</div><div class="kpi-sub">audit currently underway</div></div>
     <div class="kpi-card blue"><div class="kpi-label">Not Started</div><div class="kpi-value">188</div><div class="kpi-sub">not yet reviewed</div></div>
   </div>
@@ -169,7 +169,7 @@
     <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:16.8%"></div></div>
     <div class="progress-legend">
       <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Complete</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Issues Found</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Open Issues</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> In Progress</div>
       <div class="legend-item"><div class="legend-dot" style="background:#e5e7eb"></div> Not Started</div>
     </div>
@@ -205,7 +205,7 @@
       <select class="filter-select" id="statusFilter">
         <option value="">All Statuses</option>
         <option value="Complete">Complete</option>
-        <option value="Issues Found">Issues Found</option>
+        <option value="Issues Found">Open Issues</option>
         <option value="In Progress">In Progress</option>
         <option value="Not Started">Not Started</option>
       </select>
@@ -260,7 +260,7 @@ new Chart(weeklyCtx, {
 const statusCtx = document.getElementById('statusChart').getContext('2d');
 new Chart(statusCtx, {
   type: 'doughnut',
-  data: { labels: ['Complete', 'Issues Found', 'In Progress', 'Not Started'], datasets: [{ data: [complete, issuesFoundStatus, inProgress, notStarted], backgroundColor: ['#059669', '#dc2626', '#d97706', '#e5e7eb'], borderWidth: 0, hoverOffset: 6 }] },
+  data: { labels: ['Complete', 'Open Issues', 'In Progress', 'Not Started'], datasets: [{ data: [complete, issuesFoundStatus, inProgress, notStarted], backgroundColor: ['#059669', '#dc2626', '#d97706', '#e5e7eb'], borderWidth: 0, hoverOffset: 6 }] },
   options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 16, color: '#4b5563', usePointStyle: true } }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} investors (${(ctx.raw/total*100).toFixed(1)}%)` } } } },
   plugins: [{ id: 'centerText', beforeDraw(chart) { const {width, height, ctx} = chart; ctx.save(); const cx = width/2, cy = height/2 - 10; ctx.font = 'bold 28px -apple-system, sans-serif'; ctx.fillStyle = '#059669'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(pct + '%', cx, cy); ctx.font = '12px -apple-system, sans-serif'; ctx.fillStyle = '#9ca3af'; ctx.fillText('complete', cx, cy+22); ctx.restore(); } }]
 });
@@ -268,7 +268,7 @@ let filteredData = [...RAW_DATA];
 let sortKey = 'investor', sortDir = 1, currentPage = 1;
 const pageSize = 25;
 function gBadge(v) { if (!v) return '<span class="badge badge-na">—</span>'; if (v==='Pass') return '<span class="badge badge-pass">✓ Pass</span>'; if (v==='Fail') return '<span class="badge badge-fail">✗ Fail</span>'; return `<span class="badge badge-na">${v}</span>`; }
-function statusBadge(s) { if(s==='Complete') return '<span class="badge badge-complete">● Complete</span>'; if(s==='Issues Found') return '<span class="badge badge-issues-found">◆ Issues Found</span>'; if(s==='In Progress') return '<span class="badge badge-in-progress">◑ In Progress</span>'; return '<span class="badge badge-not-started">○ Not Started</span>'; }
+function statusBadge(s) { if(s==='Complete') return '<span class="badge badge-complete">● Complete</span>'; if(s==='Issues Found') return '<span class="badge badge-issues-found">◆ Open Issues</span>'; if(s==='In Progress') return '<span class="badge badge-in-progress">◑ In Progress</span>'; return '<span class="badge badge-not-started">○ Not Started</span>'; }
 function formatDate(d) { if (!d) return '—'; const dt = new Date(d+'T12:00:00'); return dt.toLocaleDateString('en-US', {month:'numeric',day:'numeric',year:'numeric'}); }
 function render() {
   const tbody = document.getElementById('tableBody');
