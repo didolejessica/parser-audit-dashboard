@@ -110,7 +110,6 @@
   .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
   .badge-complete { background: var(--green-light); color: var(--green); }
   .badge-in-progress { background: var(--orange-light); color: var(--orange); }
-  .badge-issues-found { background: var(--red-light); color: var(--red); }
   .badge-not-started { background: #f3f4f6; color: #6b7280; }
   .badge-pass { background: var(--green-light); color: var(--green); }
   .badge-fail { background: var(--red-light); color: var(--red); }
@@ -153,14 +152,13 @@
     <div class="daily-goal-stats">
       <div class="daily-stat"><div class="daily-stat-value met">1/1</div><div class="daily-stat-label">Today</div></div>
       <div class="daily-stat"><div class="daily-stat-value">2</div><div class="daily-stat-label">Day Streak</div></div>
-      <div class="daily-stat"><div class="daily-stat-value">2/3</div><div class="daily-stat-label">This Week</div></div>
+      <div class="daily-stat" title="Audits completed vs. business days elapsed this week"><div class="daily-stat-value">2/3</div><div class="daily-stat-label">This Week</div></div>
     </div>
   </div>
   <p class="section-label">Overview</p>
   <div class="kpi-grid">
     <div class="kpi-card navy"><div class="kpi-label">Total Investors</div><div class="kpi-value">226</div><div class="kpi-sub">in scope for audit</div></div>
     <div class="kpi-card green"><div class="kpi-label">Audits Complete</div><div class="kpi-value">43</div><div class="kpi-sub">fully reviewed</div></div>
-    <div class="kpi-card red"><div class="kpi-label">Open Issues</div><div class="kpi-value">0</div><div class="kpi-sub">pending resolution</div></div>
     <div class="kpi-card orange"><div class="kpi-label">In Progress</div><div class="kpi-value">1</div><div class="kpi-sub">audit currently underway</div></div>
     <div class="kpi-card blue"><div class="kpi-label">Not Started</div><div class="kpi-value">182</div><div class="kpi-sub">not yet reviewed</div></div>
   </div>
@@ -169,7 +167,6 @@
     <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:19.0%"></div></div>
     <div class="progress-legend">
       <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Complete</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Open Issues</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> In Progress</div>
       <div class="legend-item"><div class="legend-dot" style="background:#e5e7eb"></div> Not Started</div>
     </div>
@@ -205,7 +202,6 @@
       <select class="filter-select" id="statusFilter">
         <option value="">All Statuses</option>
         <option value="Complete">Complete</option>
-        <option value="Issues Found">Open Issues</option>
         <option value="In Progress">In Progress</option>
         <option value="Not Started">Not Started</option>
       </select>
@@ -246,9 +242,8 @@ const RAW_DATA = [{"id": 271, "investor": "A&D Mortgage - Correspondent", "statu
 const WEEKLY_DATA = [{"week": "2026-04-13", "label": "Wk of 4/13", "count": 1}, {"week": "2026-04-20", "label": "Wk of 4/20", "count": 0}, {"week": "2026-04-27", "label": "Wk of 4/27", "count": 0}, {"week": "2026-05-04", "label": "Wk of 5/4", "count": 1}, {"week": "2026-05-11", "label": "Wk of 5/11", "count": 1}, {"week": "2026-05-18", "label": "Wk of 5/18", "count": 1}, {"week": "2026-05-25", "label": "Wk of 5/25", "count": 0}, {"week": "2026-06-01", "label": "Wk of 6/1", "count": 1}, {"week": "2026-06-08", "label": "Wk of 6/8", "count": 7}, {"week": "2026-06-15", "label": "Wk of 6/15", "count": 2}, {"week": "2026-06-22", "label": "Wk of 6/22", "count": 8}, {"week": "2026-06-29", "label": "Wk of 6/29", "count": 7}, {"week": "2026-07-06", "label": "Wk of 7/6", "count": 6}, {"week": "2026-07-13", "label": "Wk of 7/13", "count": 0}, {"week": "2026-07-20", "label": "Wk of 7/20", "count": 0}, {"week": "2026-07-27", "label": "Wk of 7/27", "count": 0}, {"week": "2026-08-03", "label": "Wk of 8/3", "count": 0}, {"week": "2026-08-10", "label": "Wk of 8/10", "count": 1}, {"week": "2026-08-17", "label": "Wk of 8/17", "count": 5}, {"week": "2026-08-24", "label": "Wk of 8/24", "count": 2}];
 const total = RAW_DATA.length;
 const complete = RAW_DATA.filter(d => d.status === 'Complete').length;
-const issuesFoundStatus = RAW_DATA.filter(d => d.status === 'Issues Found').length;
-const inProgress = RAW_DATA.filter(d => d.status === 'In Progress').length;
-const notStarted = total - complete - issuesFoundStatus - inProgress;
+const inProgress = RAW_DATA.filter(d => d.status === 'In Progress' || d.status === 'Issues Found').length;
+const notStarted = total - complete - inProgress;
 const remaining = total - complete;
 const pct = total ? (complete / total * 100).toFixed(1) : 0;
 const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
@@ -260,7 +255,7 @@ new Chart(weeklyCtx, {
 const statusCtx = document.getElementById('statusChart').getContext('2d');
 new Chart(statusCtx, {
   type: 'doughnut',
-  data: { labels: ['Complete', 'Open Issues', 'In Progress', 'Not Started'], datasets: [{ data: [complete, issuesFoundStatus, inProgress, notStarted], backgroundColor: ['#059669', '#dc2626', '#d97706', '#e5e7eb'], borderWidth: 0, hoverOffset: 6 }] },
+  data: { labels: ['Complete', 'In Progress', 'Not Started'], datasets: [{ data: [complete, inProgress, notStarted], backgroundColor: ['#059669', '#d97706', '#e5e7eb'], borderWidth: 0, hoverOffset: 6 }] },
   options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 16, color: '#4b5563', usePointStyle: true } }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} investors (${(ctx.raw/total*100).toFixed(1)}%)` } } } },
   plugins: [{ id: 'centerText', beforeDraw(chart) { const {width, height, ctx} = chart; ctx.save(); const cx = width/2, cy = height/2 - 10; ctx.font = 'bold 28px -apple-system, sans-serif'; ctx.fillStyle = '#059669'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(pct + '%', cx, cy); ctx.font = '12px -apple-system, sans-serif'; ctx.fillStyle = '#9ca3af'; ctx.fillText('complete', cx, cy+22); ctx.restore(); } }]
 });
@@ -268,7 +263,7 @@ let filteredData = [...RAW_DATA];
 let sortKey = 'investor', sortDir = 1, currentPage = 1;
 const pageSize = 25;
 function gBadge(v) { if (!v) return '<span class="badge badge-na">—</span>'; if (v==='Pass') return '<span class="badge badge-pass">✓ Pass</span>'; if (v==='Fail') return '<span class="badge badge-fail">✗ Fail</span>'; return `<span class="badge badge-na">${v}</span>`; }
-function statusBadge(s) { if(s==='Complete') return '<span class="badge badge-complete">● Complete</span>'; if(s==='Issues Found') return '<span class="badge badge-issues-found">◆ Open Issues</span>'; if(s==='In Progress') return '<span class="badge badge-in-progress">◑ In Progress</span>'; return '<span class="badge badge-not-started">○ Not Started</span>'; }
+function statusBadge(s) { if(s==='Complete') return '<span class="badge badge-complete">● Complete</span>'; if(s==='In Progress' || s==='Issues Found') return '<span class="badge badge-in-progress">◑ In Progress</span>'; return '<span class="badge badge-not-started">○ Not Started</span>'; }
 function formatDate(d) { if (!d) return '—'; const dt = new Date(d+'T12:00:00'); return dt.toLocaleDateString('en-US', {month:'numeric',day:'numeric',year:'numeric'}); }
 function render() {
   const tbody = document.getElementById('tableBody');
@@ -293,7 +288,8 @@ function applyFilters() {
   const inf = document.getElementById('issuesFilter').value;
   filteredData = RAW_DATA.filter(d => {
     if (q && !d.investor.toLowerCase().includes(q)) return false;
-    if (sf && d.status !== sf) return false;
+    if (sf === 'In Progress') { if (d.status !== 'In Progress' && d.status !== 'Issues Found') return false; }
+    else if (sf && d.status !== sf) return false;
     if (inf==='issues' && d.issues_found===0) return false;
     if (inf==='clean' && d.issues_found>0) return false;
     return true;
